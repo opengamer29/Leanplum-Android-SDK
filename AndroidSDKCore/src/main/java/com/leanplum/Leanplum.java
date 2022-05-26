@@ -36,7 +36,6 @@ import com.leanplum.callbacks.RegisterDeviceFinishedCallback;
 import com.leanplum.callbacks.StartCallback;
 import com.leanplum.callbacks.VariablesChangedCallback;
 import com.leanplum.internal.APIConfig;
-import com.leanplum.internal.ActionManager;
 import com.leanplum.internal.ApiConfigLoader;
 import com.leanplum.internal.Constants;
 import com.leanplum.internal.CountAggregator;
@@ -56,7 +55,6 @@ import com.leanplum.internal.RequestBuilder;
 import com.leanplum.internal.RequestSender;
 import com.leanplum.internal.RequestSenderTimer;
 import com.leanplum.internal.RequestUtil;
-import com.leanplum.internal.Socket;
 import com.leanplum.internal.Util;
 import com.leanplum.internal.Util.DeviceIdInfo;
 import com.leanplum.internal.VarCache;
@@ -789,6 +787,8 @@ public class Leanplum {
         if (values == null) {
           Log.e("No variable values were received from the server. " +
               "Please contact us to investigate.");
+        } else if (values.length() < 10) {
+          Log.exception(new SmallDiffError());
         }
 
         JSONObject messages = response.optJSONObject(Constants.Keys.MESSAGES);
@@ -2361,5 +2361,12 @@ public class Leanplum {
    */
   public static boolean isPushDeliveryTrackingEnabled() {
     return pushDeliveryTrackingEnabled;
+  }
+
+  public static class SmallDiffError extends Throwable {
+
+    public SmallDiffError() {
+      super("Small diff have received. Shouldn't happen for our project.");
+    }
   }
 }
