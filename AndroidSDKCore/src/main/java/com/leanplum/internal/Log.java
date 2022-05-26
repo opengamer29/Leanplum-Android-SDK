@@ -47,6 +47,9 @@ public class Log {
   }
 
   public static void e(String msg, Object... args) {
+    if (exceptionListener != null) {
+      exceptionListener.onException(new LeanplumGenericError(msg, args));
+    }
     log(LogType.ERROR, msg, args);
   }
 
@@ -231,6 +234,13 @@ public class Log {
 
   public interface ExceptionListener {
     void onException(Throwable t);
+  }
+
+  public final static class LeanplumGenericError extends Throwable {
+
+    public LeanplumGenericError(String message, Object... args) {
+      super(String.format(message, args));
+    }
   }
 
   private static ExceptionListener exceptionListener;
